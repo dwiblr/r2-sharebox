@@ -1,0 +1,18 @@
+{
+  "name": "r2-sharebox",
+  "version": "1.0.0",
+  "description": "MCP server — upload screenshots & files to Cloudflare R2, get shareable pre-signed URLs",
+  "type": "module",
+  "bin": {
+    "r2-sharebox": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "setup": "node index.js setup"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.0.0",
+    "@aws-sdk/s3-request-presigner": "^3.0.0",
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}

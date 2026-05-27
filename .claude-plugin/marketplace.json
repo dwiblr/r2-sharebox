@@ -9,8 +9,8 @@
       "name": "r2-sharebox",
       "description": "Upload screenshots and files to Cloudflare R2, get shareable pre-signed URLs.",
       "source": {
-        "source": "github",
-        "repo": "dwiblr/r2-sharebox"
+        "source": "url",
+        "url": "https://github.com/dwiblr/r2-sharebox.git"
       },
       "author": {
         "name": "dwiblr"

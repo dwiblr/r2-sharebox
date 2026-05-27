@@ -46,9 +46,20 @@ __export(setup_exports, {
   runSetup: () => runSetup
 });
 import { createInterface } from "readline";
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
+function findPluginCacheDir() {
+  const cacheRoot = join(homedir(), ".claude", "plugins", "cache");
+  if (!existsSync(cacheRoot)) return null;
+  for (const marketplace of readdirSync(cacheRoot)) {
+    const pluginDir = join(cacheRoot, marketplace, "r2-sharebox");
+    if (!existsSync(pluginDir)) continue;
+    const versions2 = readdirSync(pluginDir).sort().reverse();
+    if (versions2.length) return join(pluginDir, versions2[0]);
+  }
+  return null;
+}
 function ask(rl, question) {
   return new Promise((resolve) => rl.question(question, resolve));
 }
@@ -62,6 +73,10 @@ function readJson(path) {
 }
 function writeJson(path, data2) {
   writeFileSync(path, JSON.stringify(data2, null, 2) + "\n", "utf8");
+}
+function writeEnv(path, env2) {
+  const lines = Object.entries(env2).map(([k5, v]) => `${k5}=${v}`).join("\n");
+  writeFileSync(path, lines + "\n", "utf8");
 }
 async function runSetup() {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -82,13 +97,19 @@ async function runSetup() {
     ...prefix.trim() && { R2_PREFIX: prefix.trim() },
     ...expiry.trim() && { R2_URL_EXPIRY: expiry.trim() }
   };
+  const installed = [];
+  const skipped = [];
+  const cacheDir = findPluginCacheDir();
+  if (cacheDir) {
+    const envPath = join(cacheDir, ".env");
+    writeEnv(envPath, env2);
+    installed.push(`Plugin cache .env \u2192 ${envPath}`);
+  }
   const serverEntry = {
     command: "npx",
     args: ["-y", `github:${GITHUB_REPO}`],
     env: env2
   };
-  const installed = [];
-  const skipped = [];
   for (const config2 of MCP_CONFIGS) {
     if (!existsSync(config2.dir)) {
       skipped.push(`${config2.label} (${config2.dir} not found \u2014 not installed)`);
@@ -99,7 +120,7 @@ async function runSetup() {
     existing.mcpServers = existing.mcpServers ?? {};
     existing.mcpServers["r2-sharebox"] = serverEntry;
     writeJson(config2.path, existing);
-    installed.push(`${config2.label} \u2192 ${config2.path}`);
+    installed.push(`${config2.label} MCP config \u2192 ${config2.path}`);
   }
   console.log("\n\u2705  Done!\n");
   if (installed.length) {
@@ -110,7 +131,7 @@ async function runSetup() {
     console.log("\nSkipped (app not installed):");
     skipped.forEach((s) => console.log(`  ${s}`));
   }
-  console.log("\nRestart Claude Code / Cursor to pick up the new MCP server.");
+  console.log("\nRestart Claude Code / Cursor to pick up the credentials.");
   console.log('Then ask: "take a screenshot and upload it"\n');
 }
 var GITHUB_REPO, MCP_CONFIGS;

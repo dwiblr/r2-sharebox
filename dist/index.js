@@ -61,7 +61,7 @@ function findPluginCacheDir() {
   return null;
 }
 function ask(rl, question) {
-  return new Promise((resolve) => rl.question(question, resolve));
+  return new Promise((resolve2) => rl.question(question, resolve2));
 }
 function readJson(path) {
   if (!existsSync(path)) return {};
@@ -101,9 +101,12 @@ async function runSetup() {
   const skipped = [];
   const cacheDir = findPluginCacheDir();
   if (cacheDir) {
-    const envPath = join(cacheDir, ".env");
-    writeEnv(envPath, env2);
-    installed.push(`Plugin cache .env \u2192 ${envPath}`);
+    for (const subdir of [cacheDir, join(cacheDir, "dist")]) {
+      if (existsSync(subdir)) {
+        writeEnv(join(subdir, ".env"), env2);
+      }
+    }
+    installed.push(`Plugin cache .env \u2192 ${cacheDir}`);
   }
   const serverEntry = {
     command: "npx",
@@ -8120,7 +8123,7 @@ var init_protocol = __esm({
               return;
             }
             const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
-            await new Promise((resolve) => setTimeout(resolve, pollInterval));
+            await new Promise((resolve2) => setTimeout(resolve2, pollInterval));
             options?.signal?.throwIfAborted();
           }
         } catch (error3) {
@@ -8137,7 +8140,7 @@ var init_protocol = __esm({
        */
       request(request, resultSchema, options) {
         const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve2, reject) => {
           const earlyReject = (error3) => {
             reject(error3);
           };
@@ -8215,7 +8218,7 @@ var init_protocol = __esm({
               if (!parseResult.success) {
                 reject(parseResult.error);
               } else {
-                resolve(parseResult.data);
+                resolve2(parseResult.data);
               }
             } catch (error3) {
               reject(error3);
@@ -8476,12 +8479,12 @@ var init_protocol = __esm({
           }
         } catch {
         }
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve2, reject) => {
           if (signal.aborted) {
             reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
             return;
           }
-          const timeoutId = setTimeout(resolve, interval);
+          const timeoutId = setTimeout(resolve2, interval);
           signal.addEventListener("abort", () => {
             clearTimeout(timeoutId);
             reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
@@ -11508,7 +11511,7 @@ var require_compile = __commonJS({
       const schOrFunc = root5.refs[ref];
       if (schOrFunc)
         return schOrFunc;
-      let _sch = resolve.call(this, root5, ref);
+      let _sch = resolve2.call(this, root5, ref);
       if (_sch === void 0) {
         const schema = (_a4 = root5.localRefs) === null || _a4 === void 0 ? void 0 : _a4[ref];
         const { schemaId } = this.opts;
@@ -11535,7 +11538,7 @@ var require_compile = __commonJS({
     function sameSchemaEnv(s1, s2) {
       return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
     }
-    function resolve(root5, ref) {
+    function resolve2(root5, ref) {
       let sch;
       while (typeof (sch = this.refs[ref]) == "string")
         ref = sch;
@@ -12166,7 +12169,7 @@ var require_fast_uri = __commonJS({
       }
       return uri;
     }
-    function resolve(baseURI, relativeURI, options) {
+    function resolve2(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const resolved = resolveComponent(parse4(baseURI, schemelessOptions), parse4(relativeURI, schemelessOptions), schemelessOptions, true);
       schemelessOptions.skipEscape = true;
@@ -12424,7 +12427,7 @@ var require_fast_uri = __commonJS({
     var fastUri = {
       SCHEMES,
       normalize: normalize2,
-      resolve,
+      resolve: resolve2,
       resolveComponent,
       equal,
       serialize,
@@ -16224,12 +16227,12 @@ var init_stdio2 = __esm({
         this.onclose?.();
       }
       send(message) {
-        return new Promise((resolve) => {
+        return new Promise((resolve2) => {
           const json = serializeMessage(message);
           if (this._stdout.write(json)) {
-            resolve();
+            resolve2();
           } else {
-            this._stdout.once("drain", resolve);
+            this._stdout.once("drain", resolve2);
           }
         });
       }
@@ -16733,7 +16736,7 @@ var sleep;
 var init_sleep = __esm({
   "node_modules/@smithy/core/dist-es/submodules/client/util-waiter/utils/sleep.js"() {
     sleep = (seconds) => {
-      return new Promise((resolve) => setTimeout(resolve, seconds * 1e3));
+      return new Promise((resolve2) => setTimeout(resolve2, seconds * 1e3));
     };
   }
 });
@@ -16898,8 +16901,8 @@ var init_createWaiter = __esm({
     init_waiter();
     abortTimeout = (abortSignal) => {
       let onAbort;
-      const promise = new Promise((resolve) => {
-        onAbort = () => resolve({ state: WaiterState.ABORTED });
+      const promise = new Promise((resolve2) => {
+        onAbort = () => resolve2({ state: WaiterState.ABORTED });
         if (typeof abortSignal.addEventListener === "function") {
           abortSignal.addEventListener("abort", onAbort);
         } else {
@@ -18957,7 +18960,7 @@ var init_resolveDefaultsModeConfig = __esm({
     };
     imdsHttpGet = async ({ hostname, path }) => {
       const { request } = await import("node:http");
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve2, reject) => {
         const req = request({
           method: "GET",
           hostname: hostname.replace(/^\[(.+)]$/, "$1"),
@@ -18983,7 +18986,7 @@ var init_resolveDefaultsModeConfig = __esm({
           const chunks = [];
           res.on("data", (chunk) => chunks.push(chunk));
           res.on("end", () => {
-            resolve(Buffer.concat(chunks));
+            resolve2(Buffer.concat(chunks));
             req.destroy();
           });
         });
@@ -20999,7 +21002,7 @@ var init_headStream = __esm({
       if (isReadableStream(stream)) {
         return headStream(stream, bytes);
       }
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve2, reject) => {
         const collector = new Collector();
         collector.limit = bytes;
         stream.pipe(collector);
@@ -21010,7 +21013,7 @@ var init_headStream = __esm({
         collector.on("error", reject);
         collector.on("finish", function() {
           const bytes2 = new Uint8Array(Buffer.concat(this.buffers));
-          resolve(bytes2);
+          resolve2(bytes2);
         });
       });
     };
@@ -21118,7 +21121,7 @@ async function collectStream(stream) {
   return collected;
 }
 function readToBase64(blob) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve2, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       if (reader.readyState !== 2) {
@@ -21127,7 +21130,7 @@ function readToBase64(blob) {
       const result = reader.result ?? "";
       const commaIndex = result.indexOf(",");
       const dataOffset = commaIndex > -1 ? commaIndex + 1 : result.length;
-      resolve(result.substring(dataOffset));
+      resolve2(result.substring(dataOffset));
     };
     reader.onabort = () => reject(new Error("Read aborted"));
     reader.onerror = () => reject(reader.error);
@@ -21252,7 +21255,7 @@ var init_stream_collector = __esm({
       if (isReadableStreamInstance(stream)) {
         return collectReadableStream(stream);
       }
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve2, reject) => {
         const collector = new Collector2();
         stream.pipe(collector);
         stream.on("error", (err) => {
@@ -21262,7 +21265,7 @@ var init_stream_collector = __esm({
         collector.on("error", reject);
         collector.on("finish", function() {
           const bytes = new Uint8Array(Buffer.concat(this.bufferedBytes));
-          resolve(bytes);
+          resolve2(bytes);
         });
       });
     };
@@ -21722,11 +21725,11 @@ function __metadata(metadataKey, metadataValue) {
 }
 function __awaiter(thisArg, _arguments, P, generator) {
   function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve) {
-      resolve(value);
+    return value instanceof P ? value : new P(function(resolve2) {
+      resolve2(value);
     });
   }
-  return new (P || (P = Promise))(function(resolve, reject) {
+  return new (P || (P = Promise))(function(resolve2, reject) {
     function fulfilled(value) {
       try {
         step(generator.next(value));
@@ -21742,7 +21745,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
       }
     }
     function step(result) {
-      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+      result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
@@ -21933,14 +21936,14 @@ function __asyncValues(o2) {
   }, i5);
   function verb(n2) {
     i5[n2] = o2[n2] && function(v) {
-      return new Promise(function(resolve, reject) {
-        v = o2[n2](v), settle(resolve, reject, v.done, v.value);
+      return new Promise(function(resolve2, reject) {
+        v = o2[n2](v), settle(resolve2, reject, v.done, v.value);
       });
     };
   }
-  function settle(resolve, reject, d5, v) {
+  function settle(resolve2, reject, d5, v) {
     Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d5 });
+      resolve2({ value: v2, done: d5 });
     }, reject);
   }
 }
@@ -23329,7 +23332,7 @@ async function* readableToIterable(readStream) {
     streamEnded = true;
   });
   while (!generationEnded) {
-    const value = await new Promise((resolve) => setTimeout(() => resolve(records.shift()), 0));
+    const value = await new Promise((resolve2) => setTimeout(() => resolve2(records.shift()), 0));
     if (value) {
       yield value;
     }
@@ -26648,7 +26651,7 @@ var init_retryMiddleware = __esm({
     init_constants5();
     init_parseRetryAfterHeader();
     init_util2();
-    cooldown = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    cooldown = (ms) => new Promise((resolve2) => setTimeout(resolve2, ms));
     isRetryStrategyV2 = (retryStrategy) => typeof retryStrategy.acquireInitialRetryToken !== "undefined" && typeof retryStrategy.refreshRetryTokenForRetry !== "undefined" && typeof retryStrategy.recordSuccess !== "undefined";
     getRetryErrorInfo = (error3, logger2) => {
       const errorInfo = {
@@ -26746,7 +26749,7 @@ var init_DefaultRateLimiter = __esm({
         this.refillTokenBucket();
         while (amount > this.availableTokens) {
           const delay = (amount - this.availableTokens) / this.fillRate * 1e3;
-          await new Promise((resolve) => _DefaultRateLimiter.setTimeoutFn(resolve, delay));
+          await new Promise((resolve2) => _DefaultRateLimiter.setTimeoutFn(resolve2, delay));
           this.refillTokenBucket();
         }
         this.availableTokens = this.availableTokens - amount;
@@ -27178,7 +27181,7 @@ var init_StandardRetryStrategy2 = __esm({
               const delayFromResponse = getDelayFromRetryAfterHeader(err.$response);
               const delay = Math.max(delayFromResponse || 0, delayFromDecider);
               totalDelay += delay;
-              await new Promise((resolve) => setTimeout(resolve, delay));
+              await new Promise((resolve2) => setTimeout(resolve2, delay));
               continue;
             }
             if (!err.$metadata) {
@@ -28460,12 +28463,12 @@ import { normalize, sep as sep2 } from "node:path";
 var getNodeModulesParentDirs;
 var init_getNodeModulesParentDirs = __esm({
   "node_modules/@aws-sdk/core/dist-es/submodules/client/util-user-agent-node/getNodeModulesParentDirs.js"() {
-    getNodeModulesParentDirs = (dirname) => {
+    getNodeModulesParentDirs = (dirname2) => {
       const cwd = process.cwd();
-      if (!dirname) {
+      if (!dirname2) {
         return [cwd];
       }
-      const normalizedPath = normalize(dirname);
+      const normalizedPath = normalize(dirname2);
       const parts = normalizedPath.split(sep2);
       const nodeModulesIndex = parts.indexOf("node_modules");
       const parentDir = nodeModulesIndex !== -1 ? parts.slice(0, nodeModulesIndex).join(sep2) : normalizedPath;
@@ -28540,8 +28543,8 @@ var init_getTypeScriptUserAgentPair = __esm({
         tscVersion = null;
         return void 0;
       }
-      const dirname = typeof __dirname !== "undefined" ? __dirname : void 0;
-      const nodeModulesParentDirs = getNodeModulesParentDirs(dirname);
+      const dirname2 = typeof __dirname !== "undefined" ? __dirname : void 0;
+      const nodeModulesParentDirs = getNodeModulesParentDirs(dirname2);
       let versionFromApp;
       for (const nodeModulesParentDir of nodeModulesParentDirs) {
         try {
@@ -45329,7 +45332,7 @@ var require_dist_cjs13 = __commonJS({
     var DEFAULT_MAX_RETRIES = 0;
     var providerConfigFromInit = ({ maxRetries = DEFAULT_MAX_RETRIES, timeout = DEFAULT_TIMEOUT }) => ({ maxRetries, timeout });
     function httpRequest(options) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve2, reject) => {
         const req = node_http.request({
           method: "GET",
           ...options,
@@ -45354,7 +45357,7 @@ var require_dist_cjs13 = __commonJS({
             chunks.push(chunk);
           });
           res.on("end", () => {
-            resolve(Buffer.concat(chunks));
+            resolve2(Buffer.concat(chunks));
             req.destroy();
           });
         });
@@ -45792,21 +45795,21 @@ var require_dist_cjs14 = __commonJS({
       let sendBody = true;
       if (!externalAgent && expect === "100-continue") {
         sendBody = await Promise.race([
-          new Promise((resolve) => {
-            timeoutId = Number(timing.setTimeout(() => resolve(true), Math.max(MIN_WAIT_TIME, maxContinueTimeoutMs)));
+          new Promise((resolve2) => {
+            timeoutId = Number(timing.setTimeout(() => resolve2(true), Math.max(MIN_WAIT_TIME, maxContinueTimeoutMs)));
           }),
-          new Promise((resolve) => {
+          new Promise((resolve2) => {
             httpRequest.on("continue", () => {
               timing.clearTimeout(timeoutId);
-              resolve(true);
+              resolve2(true);
             });
             httpRequest.on("response", () => {
               timing.clearTimeout(timeoutId);
-              resolve(false);
+              resolve2(false);
             });
             httpRequest.on("error", () => {
               timing.clearTimeout(timeoutId);
-              resolve(false);
+              resolve2(false);
             });
           })
         ]);
@@ -45880,13 +45883,13 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
         return socketWarningTimestamp;
       }
       constructor(options) {
-        this.configProvider = new Promise((resolve, reject) => {
+        this.configProvider = new Promise((resolve2, reject) => {
           if (typeof options === "function") {
             options().then((_options) => {
-              resolve(this.resolveDefaultConfig(_options));
+              resolve2(this.resolveDefaultConfig(_options));
             }).catch(reject);
           } else {
-            resolve(this.resolveDefaultConfig(options));
+            resolve2(this.resolveDefaultConfig(options));
           }
         });
       }
@@ -45917,7 +45920,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             timing.clearTimeout(socketTimeoutId);
             timing.clearTimeout(keepAliveTimeoutId);
           };
-          const resolve = async (arg2) => {
+          const resolve2 = async (arg2) => {
             await writeRequestBodyPromise;
             clearTimeouts();
             _resolve(arg2);
@@ -45981,7 +45984,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
               headers: getTransformedHeaders(res.headers),
               body: res
             });
-            resolve({ response: httpResponse });
+            resolve2({ response: httpResponse });
           });
           req.on("error", (err) => {
             if (NODEJS_TIMEOUT_ERROR_CODES2.includes(err.code)) {
@@ -46301,13 +46304,13 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
         return new _NodeHttp2Handler(instanceOrOptions);
       }
       constructor(options) {
-        this.configProvider = new Promise((resolve, reject) => {
+        this.configProvider = new Promise((resolve2, reject) => {
           if (typeof options === "function") {
             options().then((opts) => {
-              resolve(opts || {});
+              resolve2(opts || {});
             }).catch(reject);
           } else {
-            resolve(options || {});
+            resolve2(options || {});
           }
         });
       }
@@ -46332,7 +46335,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
         return new Promise((_resolve, _reject) => {
           let fulfilled = false;
           let writeRequestBodyPromise = void 0;
-          const resolve = async (arg2) => {
+          const resolve2 = async (arg2) => {
             await writeRequestBodyPromise;
             _resolve(arg2);
           };
@@ -46417,7 +46420,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
               body: clientHttp2Stream
             });
             fulfilled = true;
-            resolve({ response: httpResponse });
+            resolve2({ response: httpResponse });
             if (useIsolatedSession) {
               session.close();
             }
@@ -46459,7 +46462,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
       if (isReadableStreamInstance2(stream)) {
         return collectReadableStream2(stream);
       }
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve2, reject) => {
         const collector = new Collector3();
         stream.pipe(collector);
         stream.on("error", (err) => {
@@ -46469,7 +46472,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
         collector.on("error", reject);
         collector.on("finish", function() {
           const bytes = new Uint8Array(Buffer.concat(this.bufferedBytes));
-          resolve(bytes);
+          resolve2(bytes);
         });
       });
     };
@@ -46612,7 +46615,7 @@ var require_retry_wrapper = __commonJS({
           try {
             return await toRetry();
           } catch (e5) {
-            await new Promise((resolve) => setTimeout(resolve, delayMs));
+            await new Promise((resolve2) => setTimeout(resolve2, delayMs));
           }
         }
         return await toRetry();
@@ -51712,7 +51715,7 @@ var fileStreamHasher, isReadStream;
 var init_fileStreamHasher = __esm({
   "node_modules/@smithy/core/dist-es/submodules/checksum/hash-stream-node/fileStreamHasher.js"() {
     init_HashCalculator();
-    fileStreamHasher = (hashCtor, fileStream) => new Promise((resolve, reject) => {
+    fileStreamHasher = (hashCtor, fileStream) => new Promise((resolve2, reject) => {
       if (!isReadStream(fileStream)) {
         reject(new Error("Unable to calculate hash for non-file streams."));
         return;
@@ -51730,7 +51733,7 @@ var init_fileStreamHasher = __esm({
       });
       hashCalculator.on("error", reject);
       hashCalculator.on("finish", function() {
-        hash.digest().then(resolve).catch(reject);
+        hash.digest().then(resolve2).catch(reject);
       });
     });
     isReadStream = (stream) => typeof stream.path === "string";
@@ -51749,14 +51752,14 @@ var init_readableStreamHasher = __esm({
       const hash = new hashCtor();
       const hashCalculator = new HashCalculator(hash);
       readableStream.pipe(hashCalculator);
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve2, reject) => {
         readableStream.on("error", (err) => {
           hashCalculator.end();
           reject(err);
         });
         hashCalculator.on("error", reject);
         hashCalculator.on("finish", () => {
-          hash.digest().then(resolve).catch(reject);
+          hash.digest().then(resolve2).catch(reject);
         });
       });
     };
@@ -54723,6 +54726,25 @@ Key: ${key}`
 });
 
 // index.js
+import { readFileSync as readFileSync3, existsSync as existsSync4 } from "fs";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
+var __dirname2 = dirname(fileURLToPath(import.meta.url));
+for (const dir of [__dirname2, resolve(__dirname2, "..")]) {
+  const envPath = resolve(dir, ".env");
+  if (existsSync4(envPath)) {
+    for (const line of readFileSync3(envPath, "utf8").split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq === -1) continue;
+      const key = trimmed.slice(0, eq).trim();
+      const val = trimmed.slice(eq + 1).trim();
+      if (!(key in process.env)) process.env[key] = val;
+    }
+    break;
+  }
+}
 var arg = process.argv[2];
 if (arg === "setup") {
   const { runSetup: runSetup2 } = await Promise.resolve().then(() => (init_setup(), setup_exports));

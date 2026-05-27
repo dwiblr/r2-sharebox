@@ -1,0 +1,11 @@
+{
+  "name": "r2-sharebox",
+  "description": "Upload screenshots and files to Cloudflare R2, get shareable pre-signed URLs. Exposes upload_file and screenshot_and_upload MCP tools.",
+  "version": "1.0.0",
+  "author": {
+    "name": "dwiblr"
+  },
+  "homepage": "https://github.com/dwiblr/r2-sharebox",
+  "repository": "https://github.com/dwiblr/r2-sharebox",
+  "license": "MIT"
+}
